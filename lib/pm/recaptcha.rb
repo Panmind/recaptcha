@@ -1,10 +1,15 @@
 require 'timeout'
+require 'mocha'
 
 module PM
   module Recaptcha
     PrivateKey = 'The-Private-Key-Scrubbed-For-The-Release'
     PublicKey  = '6Lfap7oSAAAAAEjp-cj0Sy0Qsh0AoRpCncCzwwpw'
     ReqTimeout = 5
+
+    def self.enabled?
+      Rails.env.production?
+    end
 
     module Controller
       protected
@@ -14,6 +19,8 @@ module PM
 
       private
         def valid_captcha?
+          return true unless PM::Recaptcha.enabled?
+
           challenge, response = params.values_at(
             :recaptcha_challenge_field, :recaptcha_response_field)
 
@@ -45,6 +52,8 @@ module PM
   
     module Helpers
       def recaptcha(options = {})
+        return unless PM::Recaptcha.enabled?
+
         label_text = options.delete(:label) || 'Enter the following words'
 
         recaptcha_options =
@@ -65,6 +74,17 @@ module PM
         ]
       end
     end
+
+    module TestHelpers
+      def mock_valid_captcha_on(object)
+        object.stubs(:valid_captcha?).returns(true)
+      end
+
+      def mock_invalid_captcha_on(object)
+        object.stubs(:valid_captcha?).returns(false)
+      end
+    end
+
   end
 end
 

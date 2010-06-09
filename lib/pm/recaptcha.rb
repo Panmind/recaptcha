@@ -71,7 +71,7 @@ module PM
              <input type="text" class="text" name="recaptcha_challenge_field" tabindex="#{options[:tabindex]}"/>
              <input type="hidden" name="recaptcha_response_field" value="manual_challenge" />
           </noscript>
-        ]
+        ].html_safe
       end
     end
 

@@ -11,6 +11,16 @@ module PM
       Rails.env.production?
     end
 
+    class SolvedCaptcha
+      def self.add(email, challenge)
+        Rails.cache.write PM::Cache.namespaced_path(email, challenge), :expires_in => 5.minutes
+      end
+
+      def self.check(email, challenge)
+        Rails.cache.exist? PM::Cache.namespaced_path(email, challenge)
+      end
+    end
+
     module Controller
       protected
         def validate_recaptcha

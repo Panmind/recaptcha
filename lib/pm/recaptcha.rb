@@ -17,6 +17,15 @@ module PM
           invalid_captcha unless valid_captcha?
         end
 
+        def captcha_already_solved?
+          email = params[:user][:email] || params[:email]
+          SolvedCaptcha.check(email, params[:recaptcha_challenge_field])
+        end
+
+        def save_solved_captcha
+          SolvedCaptcha.add(params[:email], params[:recaptcha_challenge_field])
+        end
+
       private
         def valid_captcha?
           return true unless PM::Recaptcha.enabled?

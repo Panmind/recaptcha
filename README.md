@@ -124,3 +124,14 @@ captcha verification.
 
 Maybe the `authenticity_token` is a good fit for a validation cache key?
 
+Security
+--------
+
+As it is, for the time frame in which the result is cached, the captcha
+can be bypassed. Reducing the cache duration is a good start (via the
+`:cache_for` option to the controller method), but stricter checks are
+a must for busy sites. E.g., the used challenge could be saved after it
+is consumed from the cache and refused for subsequent requests.
+
+These checks are still not implemented in the plugin for simplicity's
+sake, but will follow soon.

@@ -22,7 +22,7 @@ module Panmind
         # Defaults
         #
         self.request_timeout  = options[:timeout]   || 5
-        self.cache_expiration = options[:cache_for] || 5.minutes
+        self.cache_expiration = options[:cache_for] || 10.seconds
       end
 
       def enabled?

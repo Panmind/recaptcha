@@ -1,5 +1,12 @@
 require 'timeout'
-require 'mocha'
+
+if Rails.env.test?
+  begin
+    require 'mocha'
+  rescue LoadError
+    print "\n!!\n!! ReCaptcha: to use the test helpers you should gem install mocha\n!!\n\n"
+  end
+end
 
 module PM
   module Recaptcha
@@ -121,12 +128,12 @@ module PM
     end
 
     module TestHelpers
-      def mock_valid_captcha_on(object)
-        object.stubs(:valid_captcha?).returns(true)
+      def mock_valid_captcha
+        @controller.stubs(:valid_captcha?).returns(true)
       end
 
-      def mock_invalid_captcha_on(object)
-        object.stubs(:valid_captcha?).returns(false)
+      def mock_invalid_captcha
+        @controller.stubs(:valid_captcha?).returns(false)
       end
     end
 
@@ -135,3 +142,4 @@ end
 
 ActionView::Base.send :include, PM::Recaptcha::Helpers
 ActionController::Base.send :include, PM::Recaptcha::Controller
+ActionController::TestCase.send :include, PM::Recaptcha::TestHelpers if Rails.env.test?

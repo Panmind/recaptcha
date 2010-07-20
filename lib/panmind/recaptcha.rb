@@ -9,7 +9,7 @@ if Rails.env.test?
   end
 end
 
-module PM
+module Panmind
   module Recaptcha
     class << self
       attr_accessor :private_key, :public_key,
@@ -28,7 +28,7 @@ module PM
       def enabled?
         Rails.env.production?
       end
-    end
+    end # << self
 
     class ConfigurationError < StandardError; end
 
@@ -51,7 +51,7 @@ module PM
             end
           end
       end
-    end
+    end # SolvedCaptcha
 
     module Controller
       def self.included(base)
@@ -111,7 +111,7 @@ module PM
         def invalid_captcha
           raise NotImplementedError, 'You must implement invalid_captcha in your controller'
         end
-    end
+    end # Controller
   
     module Helpers
       def recaptcha(options = {})
@@ -140,7 +140,7 @@ module PM
           </noscript>
         ].html_safe
       end
-    end
+    end # Helpers
 
     module TestHelpers
       def mock_valid_captcha
@@ -150,11 +150,7 @@ module PM
       def mock_invalid_captcha
         @controller.stubs(:valid_captcha?).returns(false)
       end
-    end
+    end # TestHelpers
 
-  end
-end
-
-ActionView::Base.send :include, PM::Recaptcha::Helpers
-ActionController::Base.send :include, PM::Recaptcha::Controller
-ActionController::TestCase.send :include, PM::Recaptcha::TestHelpers if Rails.env.test?
+  end # Recaptcha
+end # Panmind

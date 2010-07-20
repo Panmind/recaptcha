@@ -20,7 +20,8 @@ module PM
 
       # Defaults
       #
-      self.request_timeout = options[:timeout] || 5
+      self.request_timeout  = options[:timeout]   || 5
+      self.cache_expiration = options[:cache_for] || 5.minutes
     end
 
     def self.enabled?
@@ -31,7 +32,7 @@ module PM
 
     class SolvedCaptcha
       def self.add(email, challenge)
-        Rails.cache.write cache_path_for(email, challenge), :expires_in => 5.minutes
+        Rails.cache.write cache_path_for(email, challenge), :expires_in => Recaptcha.cache_expiration
       end
 
       def self.check(email, challenge)

@@ -11,42 +11,46 @@ end
 
 module PM
   module Recaptcha
-    attr_accessor :private_key, :public_key,
-                  :request_timeout, :cache_expiration
+    class << self
+      attr_accessor :private_key, :public_key,
+                    :request_timeout, :cache_expiration
 
-    def self.set(options)
-      self.private_key, self.public_key =
-        options.values_at(:private_key, :public_key)
+      def set(options)
+        self.private_key, self.public_key =
+          options.values_at(:private_key, :public_key)
 
-      # Defaults
-      #
-      self.request_timeout  = options[:timeout]   || 5
-      self.cache_expiration = options[:cache_for] || 5.minutes
-    end
+        # Defaults
+        #
+        self.request_timeout  = options[:timeout]   || 5
+        self.cache_expiration = options[:cache_for] || 5.minutes
+      end
 
-    def self.enabled?
-      Rails.env.production?
+      def enabled?
+        Rails.env.production?
+      end
     end
 
     class ConfigurationError < StandardError; end
 
     class SolvedCaptcha
-      def self.add(email, challenge)
-        Rails.cache.write cache_path_for(email, challenge), :expires_in => Recaptcha.cache_expiration
-      end
-
-      def self.check(email, challenge)
-        Rails.cache.exist? cache_path_for(email, challenge)
-      end
-
-      private
-        def self.cache_path_for(*parts)
-          if defined?(PM::Cache) # We'll release it. Promised :-)
-            PM::Cache.namespaced_path(*parts)
-          else
-            Digest::MD5.hexdigest(parts.join)
-          end
+      class << self
+        def add(email, challenge)
+          Rails.cache.write cache_path_for(email, challenge), :expires_in => Recaptcha.cache_expiration
         end
+
+        def check(email, challenge)
+          Rails.cache.exist? cache_path_for(email, challenge)
+        end
+
+        private
+          def cache_path_for(*parts)
+            if defined?(PM::Cache) # We'll release it: We promise :-)
+              PM::Cache.namespaced_path(*parts)
+            else
+              Digest::MD5.hexdigest(parts.join)
+            end
+          end
+      end
     end
 
     module Controller
@@ -78,7 +82,7 @@ module PM
 
       private
         def valid_captcha?
-          return true unless PM::Recaptcha.enabled?
+          return true unless Recaptcha.enabled?
 
           challenge, response = params.values_at(
             :recaptcha_challenge_field, :recaptcha_response_field)
@@ -111,7 +115,7 @@ module PM
   
     module Helpers
       def recaptcha(options = {})
-        return unless PM::Recaptcha.enabled?
+        return unless Recaptcha.enabled?
 
         if Recaptcha.private_key.blank? || Recaptcha.public_key.blank?
           raise ConfigurationError, 'ReCaptcha keys are missing'

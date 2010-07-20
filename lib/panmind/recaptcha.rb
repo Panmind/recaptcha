@@ -57,8 +57,13 @@ module Panmind
       def self.included(base)
         base.instance_eval do
           def require_valid_captcha(options = {})
-            if options.delete(:ajax)
+            if options.has_key?(:ajax)
               options.update(:unless => :captcha_already_solved?)
+
+              class << self
+                attr_accessor :captcha_ajax_validate_proc
+              end
+              self.captcha_ajax_validate_proc = options.delete(:ajax)
             end
 
             before_filter :validate_recaptcha, options
@@ -72,15 +77,18 @@ module Panmind
         end
 
         def captcha_already_solved?
-          email = params[:user][:email] || params[:email]
-          SolvedCaptcha.check(email, params[:recaptcha_challenge_field])
+          SolvedCaptcha.check(captcha_ajax_validate_key, params[:recaptcha_challenge_field])
         end
 
         def save_solved_captcha
-          SolvedCaptcha.add(params[:email], params[:recaptcha_challenge_field])
+          SolvedCaptcha.add(captcha_ajax_validate_key, params[:recaptcha_challenge_field])
         end
 
       private
+        def captcha_ajax_validate_key
+          instance_exec(&self.class.captcha_ajax_validate_proc)
+        end
+
         def valid_captcha?
           return true unless Recaptcha.enabled?
 

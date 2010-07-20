@@ -22,6 +22,18 @@ module PM
     end
 
     module Controller
+      def self.included(base)
+        base.instance_eval do
+          def require_valid_captcha(options = {})
+            if options.delete(:ajax)
+              options.update(:unless => :captcha_already_solved?)
+            end
+
+            before_filter :validate_recaptcha, options
+          end
+        end
+      end
+
       protected
         def validate_recaptcha
           invalid_captcha unless valid_captcha?

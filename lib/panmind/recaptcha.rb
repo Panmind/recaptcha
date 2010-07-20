@@ -123,6 +123,9 @@ module Panmind
 
         label_text = options.delete(:label) || 'Enter the following words'
 
+        noscript_options = {:width => 420, :height => 320}.merge(
+          options.delete(:noscript) || {})
+
         recaptcha_options =
           options.empty? ? '' :
           javascript_tag(%[var RecaptchaOptions = #{options.to_json}])
@@ -134,7 +137,7 @@ module Panmind
 
           <noscript>
              <iframe src="https://api-secure.recaptcha.net/noscript?k=#{Recaptcha.public_key}"
-                 height="320" width="420" frameborder="0"></iframe><br>
+                 height="#{noscript_options[:width]}" width="#{noscript_options[:height]}" frameborder="0"></iframe><br>
              <input type="text" class="text" name="recaptcha_challenge_field" tabindex="#{options[:tabindex]}"/>
              <input type="hidden" name="recaptcha_response_field" value="manual_challenge" />
           </noscript>

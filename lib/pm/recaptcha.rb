@@ -3,13 +3,23 @@ require 'mocha'
 
 module PM
   module Recaptcha
-    PrivateKey = 'The-Private-Key-Scrubbed-For-The-Release'
-    PublicKey  = '6Lfap7oSAAAAAEjp-cj0Sy0Qsh0AoRpCncCzwwpw'
-    ReqTimeout = 5
+    attr_accessor :private_key, :public_key,
+                  :request_timeout, :cache_expiration
+
+    def self.set(options)
+      self.private_key, self.public_key =
+        options.values_at(:private_key, :public_key)
+
+      # Defaults
+      #
+      self.request_timeout = options[:timeout] || 5
+    end
 
     def self.enabled?
       Rails.env.production?
     end
+
+    class ConfigurationError < StandardError; end
 
     class SolvedCaptcha
       def self.add(email, challenge)
@@ -58,10 +68,10 @@ module PM
           return false if challenge.blank? || response.blank?
 
           req = 
-            Timeout.timeout(ReqTimeout) do
+            Timeout.timeout(Recaptcha.request_timeout) do
               uri = URI.parse("http://api-verify.recaptcha.net/verify")
               Net::HTTP.post_form(uri,
-                :privatekey => PrivateKey,
+                :privatekey => Recaptcha.private_key,
                 :remoteip   => request.remote_ip,
                 :challenge  => challenge,
                 :response   => response
@@ -85,6 +95,10 @@ module PM
       def recaptcha(options = {})
         return unless PM::Recaptcha.enabled?
 
+        if Recaptcha.private_key.blank? || Recaptcha.public_key.blank?
+          raise ConfigurationError, 'ReCaptcha keys are missing'
+        end
+
         label_text = options.delete(:label) || 'Enter the following words'
 
         recaptcha_options =
@@ -93,11 +107,11 @@ module PM
 
         label_tag('recaptcha_response_field', label_text) + recaptcha_options +
         %[<script type="text/javascript"
-             src="https://api-secure.recaptcha.net/challenge?k=#{PublicKey}">
+             src="https://api-secure.recaptcha.net/challenge?k=#{Recaptcha.public_key}">
           </script>
 
           <noscript>
-             <iframe src="https://api-secure.recaptcha.net/noscript?k=#{PublicKey}"
+             <iframe src="https://api-secure.recaptcha.net/noscript?k=#{Recaptcha.public_key}"
                  height="320" width="420" frameborder="0"></iframe><br>
              <input type="text" class="text" name="recaptcha_challenge_field" tabindex="#{options[:tabindex]}"/>
              <input type="hidden" name="recaptcha_response_field" value="manual_challenge" />

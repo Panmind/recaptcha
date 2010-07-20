@@ -1,4 +1,5 @@
 require 'timeout'
+require 'digest/md5'
 
 if Rails.env.test?
   begin
@@ -30,12 +31,21 @@ module PM
 
     class SolvedCaptcha
       def self.add(email, challenge)
-        Rails.cache.write PM::Cache.namespaced_path(email, challenge), :expires_in => 5.minutes
+        Rails.cache.write cache_path_for(email, challenge), :expires_in => 5.minutes
       end
 
       def self.check(email, challenge)
-        Rails.cache.exist? PM::Cache.namespaced_path(email, challenge)
+        Rails.cache.exist? cache_path_for(email, challenge)
       end
+
+      private
+        def self.cache_path_for(*parts)
+          if defined?(PM::Cache) # We'll release it. Promised :-)
+            PM::Cache.namespaced_path(*parts)
+          else
+            Digest::MD5.hexdigest(parts.join)
+          end
+        end
     end
 
     module Controller

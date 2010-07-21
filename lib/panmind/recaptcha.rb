@@ -1,5 +1,4 @@
 require 'timeout'
-require 'digest/md5'
 
 if Rails.env.test?
   begin
@@ -12,8 +11,7 @@ end
 module Panmind
   module Recaptcha
     class << self
-      attr_accessor :private_key, :public_key,
-                    :request_timeout, :cache_expiration
+      attr_accessor :private_key, :public_key, :request_timeout
 
       def set(options)
         self.private_key, self.public_key =
@@ -21,8 +19,7 @@ module Panmind
 
         # Defaults
         #
-        self.request_timeout  = options[:timeout]   || 5
-        self.cache_expiration = options[:cache_for] || 10.seconds
+        self.request_timeout = options[:timeout] || 5
       end
 
       def enabled?
@@ -32,38 +29,12 @@ module Panmind
 
     class ConfigurationError < StandardError; end
 
-    class SolvedCaptcha
-      class << self
-        def add(email, challenge)
-          Rails.cache.write cache_path_for(email, challenge), :expires_in => Recaptcha.cache_expiration
-        end
-
-        def check(email, challenge)
-          Rails.cache.exist? cache_path_for(email, challenge)
-        end
-
-        private
-          def cache_path_for(*parts)
-            if defined?(PM::Cache) # We'll release it: We promise :-)
-              PM::Cache.namespaced_path(*parts)
-            else
-              Digest::MD5.hexdigest(parts.join)
-            end
-          end
-      end
-    end # SolvedCaptcha
-
     module Controller
       def self.included(base)
         base.instance_eval do
           def require_valid_captcha(options = {})
-            if options.has_key?(:ajax)
+            if options.delete(:ajax)
               options.update(:unless => :captcha_already_solved?)
-
-              class << self
-                attr_accessor :captcha_ajax_validate_proc
-              end
-              self.captcha_ajax_validate_proc = options.delete(:ajax)
             end
 
             before_filter :validate_recaptcha, options
@@ -77,18 +48,14 @@ module Panmind
         end
 
         def captcha_already_solved?
-          SolvedCaptcha.check(captcha_ajax_validate_key, params[:recaptcha_challenge_field])
+          flash[:skip_captcha_check]
         end
 
         def save_solved_captcha
-          SolvedCaptcha.add(captcha_ajax_validate_key, params[:recaptcha_challenge_field])
+          flash[:skip_captcha_check] = true
         end
 
       private
-        def captcha_ajax_validate_key
-          instance_exec(&self.class.captcha_ajax_validate_proc)
-        end
-
         def valid_captcha?
           return true unless Recaptcha.enabled?
 

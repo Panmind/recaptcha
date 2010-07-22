@@ -132,3 +132,9 @@ As long as you use a session store backed on the server or cryptographically
 sign the cookies used by the session cookie store (as Rails does by default)
 there is no way to bypass the captcha when AJAX validation is enabled.
 
+
+Compatibility
+-------------
+
+Tested with Rails 2.3.8 with the `rails_xss` plugin installed,
+running under Ruby 1.9.1-p378.

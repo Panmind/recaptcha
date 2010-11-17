@@ -1,6 +1,6 @@
 require 'timeout'
 
-if Rails.env.test?
+if defined?(Rails) && Rails.env.test?
   begin
     require 'mocha'
   rescue LoadError

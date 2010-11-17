@@ -24,9 +24,13 @@ the ReCaptcha HTTP service.
 Installation
 ------------
 
-    script/plugin install git://github.com/Panmind/recaptcha.git
+Via RubyGems:
 
-Gems will follow soon, hopefully after the July 22nd Ruby Social Club in Milan.
+    gem install panmind-recaptcha
+
+Or via Rails Plugin:
+
+    script/plugin install git://github.com/Panmind/recaptcha.git
 
 Usage
 -----

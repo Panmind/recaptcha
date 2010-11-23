@@ -23,7 +23,7 @@ begin
     gemspec.has_rdoc         = true
 
     gemspec.version          = Panmind::Recaptcha::Version
-    gemspec.date             = '2010-11-17'
+    gemspec.date             = '2010-11-23'
 
     gemspec.require_path     = 'lib'
 

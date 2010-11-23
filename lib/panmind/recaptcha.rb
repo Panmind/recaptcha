@@ -12,7 +12,7 @@ end
 
 module Panmind
   module Recaptcha
-    Version = 1.0
+    Version = '1.0.1'
 
     class << self
       attr_accessor :private_key, :public_key, :request_timeout

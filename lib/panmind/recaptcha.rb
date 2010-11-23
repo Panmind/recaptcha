@@ -1,11 +1,13 @@
 require 'timeout'
 
-if defined?(Rails) && Rails.env.test?
+if defined?(Rails)
+  require 'panmind/recaptcha/railtie'
+
   begin
     require 'mocha'
   rescue LoadError
     print "\n!!\n!! ReCaptcha: to use the test helpers you should gem install mocha\n!!\n\n"
-  end
+  end if Rails.env.test?
 end
 
 module Panmind

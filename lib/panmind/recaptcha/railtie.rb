@@ -15,7 +15,6 @@ module Panmind
 
     class Railtie
       def self.insert
-        debugger
         ActionView::Base.instance_eval { include Helpers }
         ActionController::Base.instance_eval { include Controller }
         ActionController::TestCase.instance_eval { include TestHelpers } if Rails.env.test?

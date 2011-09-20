@@ -25,7 +25,7 @@ module Panmind
       end
 
       def enabled?
-        Rails.env.production?
+        Rails.env.production? || Rails.env.development?
       end
     end # << self
 

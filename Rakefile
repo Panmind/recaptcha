@@ -1,7 +1,7 @@
 require 'rake'
 require 'rake/rdoctask'
 
-require 'lib/panmind/recaptcha'
+require './lib/panmind/recaptcha'
 
 begin
   require 'jeweler'
@@ -14,8 +14,8 @@ begin
                                'with the HTTP API for captcha verification, a DSL to generate a '  \
                                'before_filter and the code to implement AJAX captcha validation.'
 
-    gemspec.authors          = ['Marcello Barnaba']
-    gemspec.email            = 'vjt@openssl.it'
+    gemspec.authors          = ['Marcello Barnaba', 'Panmind staff']
+    gemspec.email            = ['vjt@openssl.it', 'info@panmind.com']
     gemspec.homepage         = 'http://github.com/Panmind/recaptcha'
 
     gemspec.files            = %w( README.md Rakefile rails/init.rb ) + Dir['lib/**/*']
@@ -23,7 +23,7 @@ begin
     gemspec.has_rdoc         = true
 
     gemspec.version          = Panmind::Recaptcha::Version
-    gemspec.date             = '2010-11-23'
+    gemspec.date             = '2011-09-20'
 
     gemspec.require_path     = 'lib'
 

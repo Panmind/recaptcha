@@ -27,7 +27,7 @@ module Panmind
       end
 
       def enabled?
-        Rails.env.production?
+        Rails.env.production? || Rails.env.development?
       end
     end # << self
 
@@ -83,8 +83,9 @@ module Panmind
           return res.first == 'true'
 
         rescue Timeout::Error
-          # Let it go...
-          true
+          # If ever a timeout error happens during the connection with 
+          # the service, then return false. It should happen rarely.
+          false
         end
 
         def invalid_captcha

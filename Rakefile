@@ -1,12 +1,13 @@
 require 'rake'
-require 'rake/rdoctask'
+require 'rdoc/task'
 
-require 'lib/panmind/recaptcha'
+require './lib/panmind/recaptcha'
 
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gemspec|
     gemspec.name             = 'panmind-recaptcha'
+    gemspec.version          = '1.0.0'
 
     gemspec.summary          = 'ReCaptcha for Rails - With AJAX Validation'
     gemspec.description      = 'ReCaptcha implements view helpers to generate ReCaptcha code, '     \

@@ -39,7 +39,7 @@ In your config/environment.rb:
 
     Panmind::Recaptcha.set(
       :private_key => 'your private key',
-      :public_key  => 'your public key
+      :public_key  => 'your public key'
     )
 
 In your controller, say, the `UsersController` for a signup action:

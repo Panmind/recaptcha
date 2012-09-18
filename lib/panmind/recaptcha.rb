@@ -5,7 +5,7 @@ if defined?(Rails) && Rails.env.test?
     require 'mocha'
   rescue LoadError
     print "\n!!\n!! ReCaptcha: to use the test helpers you should gem install mocha\n!!\n\n"
-  end
+  end if Rails.env.test?
 end
 
 module Panmind
@@ -68,7 +68,7 @@ module Panmind
 
           req = 
             Timeout.timeout(Recaptcha.request_timeout) do
-              uri = URI.parse("http://api-verify.recaptcha.net/verify")
+              uri = URI.parse("http://www.google.com/recaptcha/api/verify")
               Net::HTTP.post_form(uri,
                 :privatekey => Recaptcha.private_key,
                 :remoteip   => request.remote_ip,
@@ -110,11 +110,11 @@ module Panmind
 
         label_tag('recaptcha_response_field', label_text) + recaptcha_options +
         %[<script type="text/javascript"
-             src="https://api-secure.recaptcha.net/challenge?k=#{Recaptcha.public_key}">
+             src="http://www.google.com/recaptcha/api/challenge?k=#{Recaptcha.public_key}">
           </script>
 
           <noscript>
-             <iframe src="https://api-secure.recaptcha.net/noscript?k=#{Recaptcha.public_key}"
+             <iframe src="http://www.google.com/recaptcha/api/noscript?k=#{Recaptcha.public_key}"
                  height="#{noscript_options[:width]}" width="#{noscript_options[:height]}" frameborder="0"></iframe><br>
              <input type="text" class="text" name="recaptcha_challenge_field" tabindex="#{options[:tabindex]}"/>
              <input type="hidden" name="recaptcha_response_field" value="manual_challenge" />
